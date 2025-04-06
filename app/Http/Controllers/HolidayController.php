@@ -6,10 +6,11 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
-class HolidayController extends Controller
+class HolidayController 
 {
     public function index(Request $request)
     {
+        try{
         $country = $request->input('country', 'Ireland');
         $selectedYear = $request->input('year', Carbon::now()->year);
         $years = $this->getYears();
@@ -35,8 +36,14 @@ class HolidayController extends Controller
 
         // Fetch holidays from API
         $holidays = $this->fetchHolidays($country, $selectedYear);
+    }catch(\Exception $e){
+
+        return view('error',compact('e'));
+    }
 
         return view('holidays', compact('country', 'years', 'selectedYear', 'startDate', 'endDate', 'holidays', 'yearDisplay'));
+
+        
     }
 
     private function getYears()
@@ -53,7 +60,7 @@ class HolidayController extends Controller
         $holiday_api = new \HolidayAPI\Client(['key' => $apiKey]);
         $holidays = $holiday_api->holidays([
                         'country' => $countryCode,
-                        'year' => $year-1,
+                        'year' => $year,
                         ]);
 
       
